@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.572
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Household Budgeter", "Household Budgeter\Household Budgeter.csproj", "{F466D57B-973E-476A-8EA8-E52EB443A7DE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F466D57B-973E-476A-8EA8-E52EB443A7DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F466D57B-973E-476A-8EA8-E52EB443A7DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F466D57B-973E-476A-8EA8-E52EB443A7DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F466D57B-973E-476A-8EA8-E52EB443A7DE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {61FF447E-D902-4319-8256-72121B68C798}
+	EndGlobalSection
+EndGlobal
