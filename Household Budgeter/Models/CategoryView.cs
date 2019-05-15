@@ -6,14 +6,11 @@ using System.Web;
 
 namespace Household_Budgeter.Models
 {
-    public class InvitationView
+    public class CategoryView
     {
         public int Id { get; set; }
-        public DateTime Created { get; set; }
-       
-
-        public string OwnerId { get; set; }
-        public virtual ApplicationUser Owner { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
         public int HouseholdId { get; set; }
         public virtual Household Household { get; set; }
     }

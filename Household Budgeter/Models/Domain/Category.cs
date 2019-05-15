@@ -1,19 +1,18 @@
-﻿using Household_Budgeter.Models.Domain;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace Household_Budgeter.Models
+namespace Household_Budgeter.Models.Domain
 {
-    public class InvitationView
+    public class Category
     {
         public int Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set;}
         public DateTime Created { get; set; }
-       
+        public DateTime? Updated { get; set; }
 
-        public string OwnerId { get; set; }
-        public virtual ApplicationUser Owner { get; set; }
         public int HouseholdId { get; set; }
         public virtual Household Household { get; set; }
     }

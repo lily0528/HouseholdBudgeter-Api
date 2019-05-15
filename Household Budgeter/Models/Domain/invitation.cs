@@ -10,11 +10,13 @@ namespace Household_Budgeter.Models.Domain
         public int Id { get; set; }
         public DateTime Created { get; set; }
         public string inviteeId { get; set; }
+        public virtual ApplicationUser invitee { get; set; }
 
         public string OwnerId { get; set; }
         public virtual ApplicationUser Owner { get; set; }
         public int HouseholdId { get; set; }
         public virtual Household Household { get; set;}
+
 
     }
 }

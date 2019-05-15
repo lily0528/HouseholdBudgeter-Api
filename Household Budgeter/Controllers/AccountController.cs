@@ -28,7 +28,10 @@ namespace Household_Budgeter.Controllers
         private const string LocalLoginProvider = "Local";
         private ApplicationUserManager _userManager;
 
- 
+        public AccountController()
+        {
+        }
+
         public AccountController(ApplicationUserManager userManager,
             ISecureDataFormat<AuthenticationTicket> accessTokenFormat)
         {
@@ -392,7 +395,7 @@ namespace Household_Budgeter.Controllers
                 if (user == null /*|| !(await UserManager.IsEmailConfirmedAsync(user.Id))*/)
                 {
                     // Don't reveal that the user does not exist or is not confirmed
-                    return Ok("ForgotPasswordConfirmation");
+                    return Ok();
                 }
                
                 // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
