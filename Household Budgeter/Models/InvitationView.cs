@@ -13,8 +13,8 @@ namespace Household_Budgeter.Models
        
 
         public string OwnerId { get; set; }
-        public virtual ApplicationUser Owner { get; set; }
+        //public virtual ApplicationUser Owner { get; set; }
         public int HouseholdId { get; set; }
-        public virtual Household Household { get; set; }
+        //public virtual Household Household { get; set; }
     }
 }

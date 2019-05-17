@@ -32,40 +32,33 @@ namespace Household_Budgeter.Controllers
                 return BadRequest(ModelState);
             }
             var userId = User.Identity.GetUserId();
+            var creator = DbContext.Users.Find(userId);
             var household = Mapper.Map<Household>(model);
             household.Created = DateTime.Now;
             household.CreatorId = userId;
-            //var household = new Household
-            //{
-            //    Name = model.Name,
-            //    Description = model.Description,
-            //};
+            household.JoinedUsers.Add(creator);
             DbContext.Households.Add(household);
             DbContext.SaveChanges();
             var result = Mapper.Map<HouseholdView>(household);
-            //var householdModel = new HouseholdView
-            //{
-            //    Id = household.Id,
-            //    Name = household.Name,
-            //    Description = household.Description,
-            //    Created = household.Created,
-            //    CreatorId = household.CreatorId,
-            //    Creator = household.Creator
-            //};
             return Ok(result);
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("{id}")]
         public IHttpActionResult Edit(int id, HouseholdBindingModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var userId = User.Identity.GetUserId();
             var household = DbContext.Households.FirstOrDefault(p => p.Id == id && p.CreatorId == userId);
             if (household == null)
             {
-                return NotFound();
+                return BadRequest("Unable to find any valid households!");
             }
             Mapper.Map(model, household);
+            household.Updated = DateTime.Now;
             DbContext.SaveChanges();
             var householdModel = Mapper.Map<HouseholdView>(household);
             return Ok(householdModel);
@@ -80,7 +73,7 @@ namespace Household_Budgeter.Controllers
             var household = DbContext.Households.FirstOrDefault(p => p.Id == id && p.CreatorId == userId);
             if (household == null)
             {
-                return NotFound();
+                return BadRequest("Unable to find records to be deleted!");
             }
             DbContext.Households.Remove(household);
             DbContext.SaveChanges();
@@ -88,8 +81,8 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpGet]
-        [Route("GetHousehold/{id:int}")]
-        public IHttpActionResult GetHousehold(int id)
+        [Route("GetHouseholdMembers/{id:int}")]
+        public IHttpActionResult GetHouseholdMembers(int id)
         {
             var userId = User.Identity.GetUserId();
             var householdJoinedUser = DbContext.Households.Where(p => p.Id == id && p.JoinedUsers.Any(m => m.Id == userId))
@@ -97,7 +90,7 @@ namespace Household_Budgeter.Controllers
                 .ProjectTo<UsersView>().ToList();
             if (householdJoinedUser == null)
             {
-                return BadRequest("Can't find any joined users");
+                return BadRequest("Unable to find any joined users");
             }
             return Ok(householdJoinedUser);
         }
@@ -108,18 +101,28 @@ namespace Household_Budgeter.Controllers
         {
             var userId = User.Identity.GetUserId();
             var household = DbContext.Households.FirstOrDefault(m => m.Id == id);
+            if (household == null)
+            {
+                return BadRequest("Unable to find a valid household!");
+            }
             var householdJoinedUser = DbContext.Households.Where(p => p.Id == id && p.JoinedUsers.Any(m => m.Id == userId))
                 .Select(p => p.JoinedUsers.FirstOrDefault(m => m.Id == userId)).FirstOrDefault();
             if (householdJoinedUser == null)
             {
-                return BadRequest("Can't find any joined users");
+                return BadRequest("Unable to find any joined users!");
+            }
+            if (householdJoinedUser.Email == household.Creator.Email)
+            {
+                return BadRequest("The owner of a household should not be able to leave the household!");
             }
             household.JoinedUsers.Remove(householdJoinedUser);
             DbContext.SaveChanges();
-            var JoinedUsers = DbContext.Households.Where(p => p.Id == id && p.JoinedUsers.Any(m => m.Id == userId))
-               .SelectMany(p => p.JoinedUsers)
-               .ProjectTo<UsersView>().ToList();
-            return Ok(JoinedUsers);
+            // Unable to view list of members,because he isn't member.
+            //var JoinedUsers = DbContext.Households.Where(p => p.Id == id && p.JoinedUsers.Any(m => m.Id == userId))
+            //   .SelectMany(p => p.JoinedUsers)
+            //   .ProjectTo<UsersView>().ToList();
+            //return Ok(JoinedUsers);
+            return Ok();
         }
     }
 }

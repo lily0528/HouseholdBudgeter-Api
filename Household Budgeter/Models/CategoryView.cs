@@ -12,6 +12,6 @@ namespace Household_Budgeter.Models
         public string Name { get; set; }
         public string Description { get; set; }
         public int HouseholdId { get; set; }
-        public virtual Household Household { get; set; }
+        //public virtual Household Household { get; set; }
     }
 }

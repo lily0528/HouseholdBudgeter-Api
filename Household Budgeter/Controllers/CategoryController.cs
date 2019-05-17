@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Household_Budgeter.Models;
 using Household_Budgeter.Models.Domain;
 using Microsoft.AspNet.Identity;
@@ -23,9 +24,13 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpPost]
-        [Route("create")]
+        [Route("Create")]
         public IHttpActionResult Create(CategoryBindingModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var userId = User.Identity.GetUserId();
             var household = DbContext.Households.FirstOrDefault(p => p.Id == model.HouseholdId && p.CreatorId == userId);
             if (household == null)
@@ -41,22 +46,28 @@ namespace Household_Budgeter.Controllers
             };
             DbContext.Categories.Add(category);
             DbContext.SaveChanges();
-            return Ok();
+            return Ok(category);
         }
 
         [HttpPost]
         [Route("{id}")]
         public IHttpActionResult Edit(int id, CategoryBindingModel model)
         {
-            var userId = User.Identity.GetUserId();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
+            var userId = User.Identity.GetUserId();
             var category = DbContext.Categories.FirstOrDefault(p => p.Id == id);
-            var household = DbContext.Households.FirstOrDefault(p => p.Id == category.HouseholdId && p.CreatorId == userId);
             if (category == null)
             {
-                return NotFound();
+                return BadRequest("Unable to find a valid category!");
             }
-            else if (household == null)
+
+            var household = DbContext.Households.FirstOrDefault(p => p.Id == category.HouseholdId && p.CreatorId == userId);
+
+            if (household == null)
             {
                 return BadRequest("It is invalid household Creator or household!");
             }
@@ -64,8 +75,9 @@ namespace Household_Budgeter.Controllers
             Mapper.Map(model, category);
             category.Updated = DateTime.Now;
             DbContext.SaveChanges();
-            //var categoryModel = Mapper.Map<CategoryView>(category);
-            return Ok(/*categoryModel*/);
+            var categoryModel = Mapper.Map<CategoryView>(category);
+            return Ok(categoryModel);
+            //return Ok();
         }
 
         [HttpDelete]
@@ -74,18 +86,37 @@ namespace Household_Budgeter.Controllers
         {
             var userId = User.Identity.GetUserId();
             var category = DbContext.Categories.FirstOrDefault(p => p.Id == id);
-            var household = DbContext.Households.FirstOrDefault(p => p.Id == category.HouseholdId && p.CreatorId == userId);
             if (category == null)
             {
-                return NotFound();
+                return BadRequest("Unable to find a valid category!");
             }
-            else if (household == null)
+
+            var household = DbContext.Households.FirstOrDefault(p => p.Id == category.HouseholdId && p.CreatorId == userId);
+            if (household == null)
             {
                 return BadRequest("It is invalid household Creator or household!");
             }
+
             DbContext.Categories.Remove(category);
             DbContext.SaveChanges();
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("GetCategory/{id:int}")]
+        public IHttpActionResult GetCategory(int id)
+        {
+            var userId = User.Identity.GetUserId();
+            var category = DbContext.Categories.Where(p => p.HouseholdId == id && p.Household.JoinedUsers.Any(m => m.Id == userId))
+                           .ProjectTo<CategoryView>().ToList();
+            if (category == null)
+            {
+                return BadRequest("Unable to find a valid category!");
+            }
+            //var category = DbContext.Categories.Where(p => p.Id == id && p.Household.JoinedUsers.Any(m => m.Id == userId))
+            //    .SelectMany(k => k.Household.JoinedUsers)
+            //    .ProjectTo<UsersView>().ToList();
+            return Ok(category);
         }
     }
 }

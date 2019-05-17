@@ -12,6 +12,7 @@ namespace Household_Budgeter.Models.Domain
         public string Description { get; set; }
         public DateTime Created { get; set; }
         public string CreatorId { get; set; }
-        public virtual ApplicationUser Creator { get; set; }
+        public string CreatorName { get; set; }
+        //public virtual ApplicationUser Creator { get; set; }
     }
 }

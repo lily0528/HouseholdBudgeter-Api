@@ -23,19 +23,17 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpPost]
-        //[Route("{email}")]
-        //[Route("SendEmail/{email:string}")] todo: test
-        [Route("SendEmail")]
-        //public IHttpActionResult SendEmail(string email, InvitationBindingModel model)
-        public IHttpActionResult SendEmail(InvitationBindingModel model)
+        [Route("EmailInvitation")]
+        //[Route("EmailInvitation/{email}")]
+        public IHttpActionResult EmailInvitation(InvitationBindingModel model)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
+            var userId = User.Identity.GetUserId();
             var invitationUser = DbContext.Users.FirstOrDefault(p => p.Email == model.Email);
-            var ifInvitation = DbContext.Invitations.FirstOrDefault(p => p.inviteeId == invitationUser.Id);
+            var ifInvitation = DbContext.Invitations.FirstOrDefault(p => p.inviteeId == invitationUser.Id && p.HouseholdId== model.HouseholdId);
             if (invitationUser == null)
             {
                 return BadRequest("This invitee isn't registed user!");
@@ -46,17 +44,20 @@ namespace Household_Budgeter.Controllers
             }
 
             var household = DbContext.Households.FirstOrDefault(p => p.Id == model.HouseholdId);
-            var ifHouseholdMember = DbContext.Households.Where(p => p.JoinedUsers.Any(m => m.Email == model.Email)).FirstOrDefault();
+            var ifHouseholdMember = DbContext.Households.Where(p => p.JoinedUsers.Any(m => m.Email == model.Email) && p.Id == model.HouseholdId).FirstOrDefault();
+            if (household.CreatorId != userId)
+            {
+                return BadRequest("The creator isn't this household's owner!");
+            }
             if (household == null)
             {
                 return BadRequest("This household isn't existed!");
             }
-            else if (ifHouseholdMember != null)
+            if (ifHouseholdMember != null)
             {
                 return BadRequest("This invitee already joined!");
             }
-            
-            var userId = User.Identity.GetUserId();
+           
             var invitation = Mapper.Map<Invitation>(model);
             invitation.inviteeId = invitationUser.Id;
             invitation.Created = DateTime.Now;
@@ -64,9 +65,8 @@ namespace Household_Budgeter.Controllers
             DbContext.Invitations.Add(invitation);
             DbContext.SaveChanges();
             var emailService = new EmailService();
-            emailService.Send(model.Email, $"Manager invite you join householdId: {household.Id} household: {household.Name}", "Join Household");
-            var result = Mapper.Map<InvitationView>(invitation);
-            return Ok(result);
+            emailService.Send(model.Email, $"The owner of household invite you join householdId: {household.Id} household Name: {household.Name}", "Join Household");
+            return Ok();
         }
 
         [HttpPost]
@@ -74,13 +74,27 @@ namespace Household_Budgeter.Controllers
         public IHttpActionResult AcceptInvitation(int id)
         {
             var userId = User.Identity.GetUserId();
+            var user = DbContext.Users.Find(userId);
             var household = DbContext.Households.FirstOrDefault(p => p.Id == id);
+            if (household == null)
+            {
+                return BadRequest("Your hosehold id is wrong!");
+            }
+
+            var ifHouseholdMember = DbContext.Households.FirstOrDefault(p => p.JoinedUsers.Any(m => m.Email == user.Email) && p.Id == id);
+            if (ifHouseholdMember != null)
+            {
+                return BadRequest("You already joined household!");
+            }
+
             var invitation = DbContext.Invitations.FirstOrDefault(p => p.HouseholdId == id && p.inviteeId == userId);
             if(invitation == null)
             {
-                return BadRequest("No invitation data");
+                return BadRequest("You are not invited!");
             }
+
             household.JoinedUsers.Add(invitation.invitee);
+            DbContext.Invitations.Remove(invitation);
             DbContext.SaveChanges();
             return Ok();
         }
