@@ -33,6 +33,13 @@ namespace Household_Budgeter.Controllers
                 return BadRequest(ModelState);
             }
             var userId = User.Identity.GetUserId();
+            var household = DbContext.Households.FirstOrDefault(p => p.Id == model.HouseholdId);
+            var ifHouseholdMember = DbContext.Households.Where(p => p.JoinedUsers.Any(m => m.Email == model.Email) && p.Id == model.HouseholdId).FirstOrDefault();
+            if (household.CreatorId != userId || household == null || ifHouseholdMember != null)
+            {
+                return BadRequest("The creator isn't this household's owner,or this household isn't existed,or This invitee already joined!");
+            }
+
             var invitationUser = DbContext.Users.FirstOrDefault(p => p.Email == model.Email);
             var ifInvitation = DbContext.Invitations.FirstOrDefault(p => p.inviteeId == invitationUser.Id && p.HouseholdId== model.HouseholdId);
             if (invitationUser == null)
@@ -44,22 +51,6 @@ namespace Household_Budgeter.Controllers
                 return BadRequest("This invitee already invited!");
             }
 
-            var household = DbContext.Households.FirstOrDefault(p => p.Id == model.HouseholdId);
-            var ifHouseholdMember = DbContext.Households.Where(p => p.JoinedUsers.Any(m => m.Email == model.Email) && p.Id == model.HouseholdId).FirstOrDefault();
-            if (household.CreatorId != userId)
-            {
-                return BadRequest("The creator isn't this household's owner!");
-            }
-            // not neccessary to check it separately, can be done at the same time when checking ownership 
-            if (household == null)
-            {
-                return BadRequest("This household isn't existed!");
-            }
-            if (ifHouseholdMember != null)
-            {
-                return BadRequest("This invitee already joined!");
-            }
-           
             var invitation = Mapper.Map<Invitation>(model);
             invitation.inviteeId = invitationUser.Id;
             invitation.Created = DateTime.Now;
@@ -77,7 +68,12 @@ namespace Household_Budgeter.Controllers
         {
             var userId = User.Identity.GetUserId();
             var user = DbContext.Users.Find(userId);
-            // TODO: check invitation first
+            var invitation = DbContext.Invitations.FirstOrDefault(p => p.HouseholdId == id && p.inviteeId == userId);
+            if (invitation == null)
+            {
+                return BadRequest("You are not invited!");
+            } 
+
             var household = DbContext.Households.FirstOrDefault(p => p.Id == id);
             if (household == null)
             {
@@ -88,12 +84,6 @@ namespace Household_Budgeter.Controllers
             if (ifHouseholdMember != null)
             {
                 return BadRequest("You already joined household!");
-            }
-
-            var invitation = DbContext.Invitations.FirstOrDefault(p => p.HouseholdId == id && p.inviteeId == userId);
-            if(invitation == null)
-            {
-                return BadRequest("You are not invited!");
             }
 
             household.JoinedUsers.Add(invitation.invitee);
