@@ -27,6 +27,7 @@ namespace Household_Budgeter.Controllers
         //[Route("EmailInvitation/{email}")]
         public IHttpActionResult EmailInvitation(InvitationBindingModel model)
         {
+            // TODO: Check if the requester is the owner first
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -49,6 +50,7 @@ namespace Household_Budgeter.Controllers
             {
                 return BadRequest("The creator isn't this household's owner!");
             }
+            // not neccessary to check it separately, can be done at the same time when checking ownership 
             if (household == null)
             {
                 return BadRequest("This household isn't existed!");
@@ -75,6 +77,7 @@ namespace Household_Budgeter.Controllers
         {
             var userId = User.Identity.GetUserId();
             var user = DbContext.Users.Find(userId);
+            // TODO: check invitation first
             var household = DbContext.Households.FirstOrDefault(p => p.Id == id);
             if (household == null)
             {

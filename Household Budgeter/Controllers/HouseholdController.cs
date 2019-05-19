@@ -88,7 +88,8 @@ namespace Household_Budgeter.Controllers
             var householdJoinedUser = DbContext.Households.Where(p => p.Id == id && p.JoinedUsers.Any(m => m.Id == userId))
                 .SelectMany(p => p.JoinedUsers)
                 .ProjectTo<UsersView>().ToList();
-            if (householdJoinedUser == null)
+            
+            if (householdJoinedUser.Count() == 0)
             {
                 return BadRequest("Unable to find any joined users");
             }
@@ -109,7 +110,7 @@ namespace Household_Budgeter.Controllers
                 .Select(p => p.JoinedUsers.FirstOrDefault(m => m.Id == userId)).FirstOrDefault();
             if (householdJoinedUser == null)
             {
-                return BadRequest("Unable to find any joined users!");
+                return NotFound();
             }
             if (householdJoinedUser.Email == household.Creator.Email)
             {
@@ -117,11 +118,6 @@ namespace Household_Budgeter.Controllers
             }
             household.JoinedUsers.Remove(householdJoinedUser);
             DbContext.SaveChanges();
-            // Unable to view list of members,because he isn't member.
-            //var JoinedUsers = DbContext.Households.Where(p => p.Id == id && p.JoinedUsers.Any(m => m.Id == userId))
-            //   .SelectMany(p => p.JoinedUsers)
-            //   .ProjectTo<UsersView>().ToList();
-            //return Ok(JoinedUsers);
             return Ok();
         }
     }

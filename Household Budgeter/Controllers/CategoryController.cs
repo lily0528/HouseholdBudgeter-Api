@@ -46,6 +46,7 @@ namespace Household_Budgeter.Controllers
             };
             DbContext.Categories.Add(category);
             DbContext.SaveChanges();
+            // TODO: would be better if using View Model
             return Ok(category);
         }
 
@@ -59,6 +60,7 @@ namespace Household_Budgeter.Controllers
             }
 
             var userId = User.Identity.GetUserId();
+            // TODO: must check if the user is the owner of the household
             var category = DbContext.Categories.FirstOrDefault(p => p.Id == id);
             if (category == null)
             {
@@ -86,6 +88,7 @@ namespace Household_Budgeter.Controllers
         {
             var userId = User.Identity.GetUserId();
             var category = DbContext.Categories.FirstOrDefault(p => p.Id == id);
+            // TODO: not neccessary return error message here since we haven't identify if the user is the owner
             if (category == null)
             {
                 return BadRequest("Unable to find a valid category!");
