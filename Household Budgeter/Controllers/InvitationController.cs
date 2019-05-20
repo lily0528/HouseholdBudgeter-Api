@@ -24,10 +24,8 @@ namespace Household_Budgeter.Controllers
 
         [HttpPost]
         [Route("EmailInvitation")]
-        //[Route("EmailInvitation/{email}")]
         public IHttpActionResult EmailInvitation(InvitationBindingModel model)
         {
-            // TODO: Check if the requester is the owner first
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -37,7 +35,7 @@ namespace Household_Budgeter.Controllers
             var ifHouseholdMember = DbContext.Households.Where(p => p.JoinedUsers.Any(m => m.Email == model.Email) && p.Id == model.HouseholdId).FirstOrDefault();
             if (household.CreatorId != userId || household == null || ifHouseholdMember != null)
             {
-                return BadRequest("The creator isn't this household's owner,or this household isn't existed,or This invitee already joined!");
+                return BadRequest("The creator isn't this household's owner,or the information is wrong!");
             }
 
             var invitationUser = DbContext.Users.FirstOrDefault(p => p.Email == model.Email);
@@ -46,7 +44,7 @@ namespace Household_Budgeter.Controllers
             {
                 return BadRequest("This invitee isn't registed user!");
             }
-            else if(ifInvitation != null)
+            if(ifInvitation != null)
             {
                 return BadRequest("This invitee already invited!");
             }
