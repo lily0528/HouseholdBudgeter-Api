@@ -8,7 +8,6 @@ namespace Household_Budgeter.Models
     public class InvitationBindingModel
     {
         public string UserId { get; set; }
-        // TODO: can remove OwnerId
         public string OwnerId { get; set; }
         public string Email { get; set; }
         public int HouseholdId { get; set; }
