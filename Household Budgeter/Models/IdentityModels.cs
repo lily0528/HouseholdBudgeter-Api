@@ -21,6 +21,13 @@ namespace Household_Budgeter.Models
         public virtual List<Household> JoinedHouseholds { get; set; }
 
         public virtual List<Invitation> Invitations { get; set; }
+        public ApplicationUser()
+        {
+            JoinedHouseholds = new List<Household>();
+            CreatedHouseholds = new List<Household>();
+            Invitations = new List<Invitation>();
+
+        }
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager, string authenticationType)
         {
             // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType

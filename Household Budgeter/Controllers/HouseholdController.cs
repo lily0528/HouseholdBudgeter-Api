@@ -51,16 +51,22 @@ namespace Household_Budgeter.Controllers
         [Route("{id}")]
         public IHttpActionResult Edit(int id, HouseholdBindingModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
             var userId = User.Identity.GetUserId();
             var household = DbContext.Households.FirstOrDefault(p => p.Id == id && p.CreatorId == userId);
             if (household == null)
             {
-                return BadRequest("Unable to find any valid households!");
+                return NotFound();
             }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if(household.CreatorId != userId)
+            {
+                ModelState.AddModelError("","You don't be this household!");
+                return BadRequest();
+            }
+
             Mapper.Map(model, household);
             household.Updated = DateTime.Now;
             DbContext.SaveChanges();

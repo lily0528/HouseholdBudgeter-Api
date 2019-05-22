@@ -440,7 +440,7 @@ namespace Household_Budgeter.Controllers
             var result = await UserManager.ResetPasswordAsync(user.Id, model.Code, model.Password);
             if (result.Succeeded)
             {
-                return Ok(model);
+                return Ok();
             }
             
             return BadRequest();
