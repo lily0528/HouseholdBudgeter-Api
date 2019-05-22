@@ -33,6 +33,10 @@ namespace Household_Budgeter.Controllers
             }
             var userId = User.Identity.GetUserId();
             var creator = DbContext.Users.Find(userId);
+            if(creator == null)
+            {
+                return BadRequest("Can't find the user!");
+            }
             var household = Mapper.Map<Household>(model);
             household.Created = DateTime.Now;
             household.CreatorId = userId;

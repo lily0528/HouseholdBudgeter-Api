@@ -22,12 +22,14 @@ namespace Household_Budgeter.Models.Domain
      
         public virtual List<Invitation> Invitations { get; set; }
         public virtual List<Category> Categories { get; set; }
+        public virtual List<BankAccount> BankAccounts { get; set; }
 
         public Household()
         {
             JoinedUsers = new List<ApplicationUser>();
             Invitations = new List<Invitation>();
             Categories = new List<Category>();
+            BankAccounts = new List<BankAccount>();
         }
     }
 }

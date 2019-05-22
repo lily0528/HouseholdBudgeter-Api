@@ -33,7 +33,11 @@ namespace Household_Budgeter.Controllers
             var userId = User.Identity.GetUserId();
             var household = DbContext.Households.FirstOrDefault(p => p.Id == model.HouseholdId);
             var ifHouseholdMember = DbContext.Households.Where(p => p.JoinedUsers.Any(m => m.Email == model.Email) && p.Id == model.HouseholdId).FirstOrDefault();
-            if (household.CreatorId != userId || household == null || ifHouseholdMember != null)
+            if (household == null)
+            {
+                return BadRequest("The household is invalid!");
+            }
+                if (household.CreatorId != userId || ifHouseholdMember != null)
             {
                 return BadRequest("The creator isn't this household's owner,or the information is wrong!");
             }

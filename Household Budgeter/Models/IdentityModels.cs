@@ -39,9 +39,21 @@ namespace Household_Budgeter.Models
         public DbSet<Household> Households { get; set; }
         public DbSet<Invitation> Invitations { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<BankAccount> BankAccounts { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
+
         public static ApplicationDbContext Create()
         {
             return new ApplicationDbContext();
+        }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Household>()
+                .HasMany(s => s.Categories)
+                .WithRequired(p => p.Household)
+                .WillCascadeOnDelete(false);
+            base.OnModelCreating(modelBuilder);
         }
     }
 }
