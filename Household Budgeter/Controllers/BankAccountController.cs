@@ -55,12 +55,8 @@ namespace Household_Budgeter.Controllers
                 return BadRequest(ModelState);
             }
             var userId = User.Identity.GetUserId();
-            var household = DbContext.Households.FirstOrDefault(p => p.Id == formdata.HouseholdId && p.CreatorId == userId);
-            if (household == null)
-            {
-                return BadRequest("It is invalid household Creator or household!");
-            }
-            var bankAccountItem = DbContext.BankAccounts.Find(id);
+
+            var bankAccountItem = DbContext.BankAccounts.FirstOrDefault(p => p.Id ==id && p.Household.CreatorId == userId);
             if (bankAccountItem == null)
             {
                 return NotFound();
@@ -77,16 +73,10 @@ namespace Household_Budgeter.Controllers
         public IHttpActionResult Delete(int id)
         {
             var userId = User.Identity.GetUserId();
-            var bankAccountItem = DbContext.BankAccounts.Find(id);
+            var bankAccountItem = DbContext.BankAccounts.FirstOrDefault(p => p.Id == id && p.Household.CreatorId == userId);
             if (bankAccountItem == null)
             {
                 return NotFound();
-            }
-
-            var household = DbContext.Households.FirstOrDefault(p => p.Id == bankAccountItem.HouseholdId && p.CreatorId == userId);
-            if (household == null)
-            {
-                return BadRequest("It is invalid household Creator or household!");
             }
             DbContext.BankAccounts.Remove(bankAccountItem);
             DbContext.SaveChanges();

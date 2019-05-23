@@ -7,8 +7,8 @@ namespace Household_Budgeter.Models
 {
     public class InvitationBindingModel
     {
-        public string UserId { get; set; }
-        public string OwnerId { get; set; }
+       public string UserId { get; set; }
+        //public string OwnerId { get; set; }
         public string Email { get; set; }
         public int HouseholdId { get; set; }
     }

@@ -58,18 +58,17 @@ namespace Household_Budgeter.Controllers
                 return BadRequest(ModelState);
             }
             var userId = User.Identity.GetUserId();
-            var transaction = DbContext.Transactions.FirstOrDefault(p => p.Id == id && p.IfVoid == false);
+            var transaction = DbContext.Transactions.FirstOrDefault(p => p.Id == id && p.IfVoid == false && (p.CreatorId == userId || p.BankAccount.Household.CreatorId == userId));
             if (transaction == null)
             {
-                return BadRequest();
-            }
-            var household = DbContext.Households.FirstOrDefault(p => p.BankAccounts.Any(m => m.Id == formData.BankAccountId) && (p.JoinedUsers.Any(j => j.Id == userId) || p.CreatorId == userId));
-            if (household == null)
-            {
-                return BadRequest("Unable find valid data!");
+                return NotFound();
             }
 
             var bankAccount = DbContext.BankAccounts.FirstOrDefault(p => p.Id == transaction.BankAccountId);
+            if (bankAccount == null)
+            {
+                return NotFound();
+            }
 
             if (transaction.BankAccountId == formData.BankAccountId && transaction.Amount != formData.Amount)
             {
@@ -104,9 +103,13 @@ namespace Household_Budgeter.Controllers
             var transaction = DbContext.Transactions.FirstOrDefault(p => p.Id == id && (p.CreatorId == userId || p.BankAccount.Household.CreatorId == userId));
             if (transaction == null)
             {
-                return BadRequest("Unable find valid data!");
+                return NotFound();
             }
             var bankAccount = DbContext.BankAccounts.FirstOrDefault(p => p.Id == transaction.BankAccountId);
+            if(bankAccount == null)
+            {
+                return BadRequest("Unable find valid bank account!");
+            }
             if (transaction.IfVoid == false)
             {
                 bankAccount.Balance = bankAccount.Balance - transaction.Amount;
@@ -128,6 +131,10 @@ namespace Household_Budgeter.Controllers
                 return NotFound();
             }
             var bankAccount = DbContext.BankAccounts.FirstOrDefault(p => p.Id == transaction.BankAccountId);
+            if (bankAccount == null)
+            {
+                return BadRequest("Unable to find valid bank account!");
+            }
             bankAccount.Balance = bankAccount.Balance - transaction.Amount;
             transaction.IfVoid = true;
             DbContext.SaveChanges();

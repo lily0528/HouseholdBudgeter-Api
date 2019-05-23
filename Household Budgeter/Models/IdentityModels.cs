@@ -16,7 +16,7 @@ namespace Household_Budgeter.Models
 
         [InverseProperty(nameof(Household.Creator))]
         public virtual List<Household> CreatedHouseholds { get; set; }
-  
+
         [InverseProperty(nameof(Household.JoinedUsers))]
         public virtual List<Household> JoinedHouseholds { get; set; }
 
@@ -56,11 +56,18 @@ namespace Household_Budgeter.Models
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder
+                .Entity<ApplicationUser>()
+                .HasMany(p => p.JoinedHouseholds)
+                .WithMany(p => p.JoinedUsers)
+                .Map(p => p.ToTable("HouseholdMembers"));
+
             modelBuilder.Entity<Household>()
                 .HasMany(s => s.Categories)
                 .WithRequired(p => p.Household)
                 .WillCascadeOnDelete(false);
-            base.OnModelCreating(modelBuilder);
+
         }
     }
 }
