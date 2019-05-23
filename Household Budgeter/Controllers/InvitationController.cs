@@ -12,7 +12,7 @@ using System.Web.Http;
 namespace Household_Budgeter.Controllers
 {
     [Authorize]
-    [RoutePrefix("api/Invitation")]
+    //[RoutePrefix("api/Invitation")]
     public class InvitationController : ApiController
     {
         private ApplicationDbContext DbContext;
@@ -23,7 +23,7 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpPost]
-        [Route("EmailInvitation")]
+        //[Route("EmailInvitation")]
         public IHttpActionResult EmailInvitation(InvitationBindingModel model)
         {
             if (!ModelState.IsValid)
@@ -37,18 +37,18 @@ namespace Household_Budgeter.Controllers
             {
                 return BadRequest("The household is invalid!");
             }
-                if (household.CreatorId != userId || ifHouseholdMember != null)
+            if (household.CreatorId != userId || ifHouseholdMember != null)
             {
                 return BadRequest("The creator isn't this household's owner,or the information is wrong!");
             }
 
             var invitationUser = DbContext.Users.FirstOrDefault(p => p.Email == model.Email);
-            var ifInvitation = DbContext.Invitations.FirstOrDefault(p => p.inviteeId == invitationUser.Id && p.HouseholdId== model.HouseholdId);
+            var ifInvitation = DbContext.Invitations.FirstOrDefault(p => p.inviteeId == invitationUser.Id && p.HouseholdId == model.HouseholdId);
             if (invitationUser == null)
             {
                 return BadRequest("This invitee isn't registed user!");
             }
-            if(ifInvitation != null)
+            if (ifInvitation != null)
             {
                 return BadRequest("This invitee already invited!");
             }
@@ -65,7 +65,7 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpPost]
-        [Route("AcceptInvitation/{id:int}")]
+        //[Route("AcceptInvitation/{id:int}")]
         public IHttpActionResult AcceptInvitation(int id)
         {
             var userId = User.Identity.GetUserId();
@@ -74,7 +74,7 @@ namespace Household_Budgeter.Controllers
             if (invitation == null)
             {
                 return BadRequest("You are not invited!");
-            } 
+            }
 
             var household = DbContext.Households.FirstOrDefault(p => p.Id == id);
             if (household == null)

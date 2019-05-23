@@ -13,7 +13,7 @@ using System.Web.Http;
 namespace Household_Budgeter.Controllers
 {
     [Authorize]
-    [RoutePrefix("api/BankAccount")]
+    //[RoutePrefix("api/BankAccount")]
     public class BankAccountController : ApiController
     {
         private ApplicationDbContext DbContext;
@@ -24,7 +24,7 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpPost]
-        [Route("Create")]
+        //[Route("Create")]
         public IHttpActionResult Create(BankAccountBindingModel formdata)
         {
             if (!ModelState.IsValid)
@@ -47,7 +47,7 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpPut]
-        [Route("Edit/{id:int}")]
+        //[Route("Edit/{id:int}")]
         public IHttpActionResult Edit(int id, BankAccountBindingModel formdata)
         {
             if (!ModelState.IsValid)
@@ -73,7 +73,7 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpDelete]
-        [Route("Delete/{id:int}")]
+        //[Route("Delete/{id:int}")]
         public IHttpActionResult Delete(int id)
         {
             var userId = User.Identity.GetUserId();
@@ -94,7 +94,7 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpGet]
-        [Route("GetBankAccounts/{id:int}")]
+        //[Route("GetBankAccounts/{id:int}")]
         public IHttpActionResult GetBankAccounts(int id)
         {
             var userId = User.Identity.GetUserId();
@@ -105,12 +105,16 @@ namespace Household_Budgeter.Controllers
             return Ok(bankAccount);
         }
         [HttpPost]
-        [Route("CalculateBalance/{id:int}")]
+        //[Route("CalculateBalance/{id:int}")]
         public IHttpActionResult CalculateBalance(int id)
         {
             var userId = User.Identity.GetUserId();
-            var bankAccount = DbContext.BankAccounts.FirstOrDefault(p => p.Id == id);
-            bankAccount.Balance = DbContext.Transactions.Where(p => p.BankAccountId == id && p.IfVoid == false).ToList().Sum(m => m.Amount);
+            var bankAccount = DbContext.BankAccounts.FirstOrDefault(p => p.Id == id && p.Household.CreatorId == userId);
+            if (bankAccount == null)
+            {
+                return NotFound();
+            }
+            bankAccount.Balance = DbContext.Transactions.Where(p => p.BankAccountId == id && p.IfVoid == false && p.BankAccount.Household.CreatorId == userId).ToList().Sum(m => m.Amount);
             DbContext.SaveChanges();
             return Ok();
         }

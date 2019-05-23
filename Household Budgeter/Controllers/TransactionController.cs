@@ -14,7 +14,7 @@ using System.Web.Http;
 namespace Household_Budgeter.Controllers
 {
     [Authorize]
-    [RoutePrefix("api/transaction")]
+    //[RoutePrefix("api/transaction")]
     public class TransactionController : ApiController
     {
         private ApplicationDbContext DbContext;
@@ -24,7 +24,7 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpPost]
-        [Route("create")]
+        //[Route("create")]
         public IHttpActionResult Create(TransactionBindingModel formData)
         {
             if (!ModelState.IsValid)
@@ -42,6 +42,7 @@ namespace Household_Budgeter.Controllers
             transaction.CreatorId = userId;
             transaction.IfVoid = false;
             bankAccount.Balance = bankAccount.Balance + formData.Amount;
+            bankAccount.Updated = DateTime.Now;
             DbContext.Transactions.Add(transaction);
             DbContext.SaveChanges();
             var model = Mapper.Map<TransactionView>(transaction);
@@ -49,7 +50,7 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpPut]
-        [Route("Edit/{id:int}")]
+        //[Route("Edit/{id:int}")]
         public IHttpActionResult Edit(int id, TransactionBindingModel formData)
         {
             if (!ModelState.IsValid)
@@ -69,22 +70,24 @@ namespace Household_Budgeter.Controllers
             }
 
             var bankAccount = DbContext.BankAccounts.FirstOrDefault(p => p.Id == transaction.BankAccountId);
-     
-                if (transaction.BankAccountId == formData.BankAccountId && transaction.Amount != formData.Amount)
+
+            if (transaction.BankAccountId == formData.BankAccountId && transaction.Amount != formData.Amount)
+            {
+                bankAccount.Balance = bankAccount.Balance - transaction.Amount + formData.Amount;
+                bankAccount.Updated = DateTime.Now;
+
+            }
+            else if (transaction.BankAccountId != formData.BankAccountId)
+            {
+                var bankAccountFormData = DbContext.BankAccounts.FirstOrDefault(p => p.Id == formData.BankAccountId);
+                if (bankAccountFormData == null)
                 {
-                    bankAccount.Balance = bankAccount.Balance - transaction.Amount + formData.Amount;
-                    
+                    return NotFound();
                 }
-                else if(transaction.BankAccountId != formData.BankAccountId)
-                {
-                    var bankAccountFormData = DbContext.BankAccounts.FirstOrDefault(p => p.Id == formData.BankAccountId);
-                    if (bankAccountFormData == null)
-                    {
-                        return NotFound();
-                    }
-                    bankAccount.Balance = bankAccount.Balance - transaction.Amount;
-                    bankAccountFormData.Balance = bankAccountFormData.Balance + formData.Amount;
-                }
+                bankAccount.Balance = bankAccount.Balance - transaction.Amount;
+                bankAccountFormData.Balance = bankAccountFormData.Balance + formData.Amount;
+                bankAccount.Updated = DateTime.Now;
+            }
             Mapper.Map(formData, transaction);
             transaction.Amount = formData.Amount;
             DbContext.SaveChanges();
@@ -93,11 +96,11 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpDelete]
-        [Route("Delete/{id:int}")]
-         public IHttpActionResult Delete(int id)
+        //[Route("Delete/{id:int}")]
+        public IHttpActionResult Delete(int id)
         {
             var userId = User.Identity.GetUserId();
-           
+
             var transaction = DbContext.Transactions.FirstOrDefault(p => p.Id == id && (p.CreatorId == userId || p.BankAccount.Household.CreatorId == userId));
             if (transaction == null)
             {
@@ -114,7 +117,7 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpPut]
-        [Route("VoidTransaction/{id:int}")]
+        //[Route("VoidTransaction/{id:int}")]
         public IHttpActionResult VoidTransaction(int id)
         {
             var userId = User.Identity.GetUserId();
@@ -132,7 +135,7 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpGet]
-        [Route("GetTransactions/{id:int}")]
+        //[Route("GetTransactions/{id:int}")]
         public IHttpActionResult GetTransactions(int id)
         {
             var userId = User.Identity.GetUserId();

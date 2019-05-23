@@ -13,7 +13,7 @@ using System.Web.Http;
 namespace Household_Budgeter.Controllers
 {
     [Authorize]
-    [RoutePrefix("api/Household")]
+    //[RoutePrefix("api/Household")]
     public class HouseholdController : ApiController
     {
         private ApplicationDbContext DbContext;
@@ -24,7 +24,7 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpPost]
-        [Route("create")]
+        //[Route("create")]
         public IHttpActionResult Create(HouseholdBindingModel model)
         {
             if (!ModelState.IsValid)
@@ -33,7 +33,7 @@ namespace Household_Budgeter.Controllers
             }
             var userId = User.Identity.GetUserId();
             var creator = DbContext.Users.Find(userId);
-            if(creator == null)
+            if (creator == null)
             {
                 return BadRequest("Can't find the user!");
             }
@@ -48,7 +48,7 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpPut]
-        [Route("{id}")]
+        //[Route("{id}")]
         public IHttpActionResult Edit(int id, HouseholdBindingModel model)
         {
             var userId = User.Identity.GetUserId();
@@ -61,9 +61,9 @@ namespace Household_Budgeter.Controllers
             {
                 return BadRequest(ModelState);
             }
-            if(household.CreatorId != userId)
+            if (household.CreatorId != userId)
             {
-                ModelState.AddModelError("","You don't be this household!");
+                ModelState.AddModelError("", "You don't be this household!");
                 return BadRequest();
             }
 
@@ -76,7 +76,7 @@ namespace Household_Budgeter.Controllers
 
 
         [HttpDelete]
-        [Route("delete/{id:int}")]
+        //[Route("delete/{id:int}")]
         public IHttpActionResult Delete(int id)
         {
             var userId = User.Identity.GetUserId();
@@ -91,14 +91,14 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpGet]
-        [Route("GetHouseholdMembers/{id:int}")]
+        //[Route("GetHouseholdMembers/{id:int}")]
         public IHttpActionResult GetHouseholdMembers(int id)
         {
             var userId = User.Identity.GetUserId();
             var householdJoinedUser = DbContext.Households.Where(p => p.Id == id && p.JoinedUsers.Any(m => m.Id == userId))
                 .SelectMany(p => p.JoinedUsers)
                 .ProjectTo<UsersView>().ToList();
-            
+
             if (householdJoinedUser.Count() == 0)
             {
                 return BadRequest("Unable to find any joined users");
@@ -107,7 +107,7 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpDelete]
-        [Route("MemberLeave/{id:int}")]
+        //[Route("MemberLeave/{id:int}")]
         public IHttpActionResult MemberLeave(int id)
         {
             var userId = User.Identity.GetUserId();
@@ -116,7 +116,7 @@ namespace Household_Budgeter.Controllers
             {
                 return BadRequest("Unable to find a valid household!");
             }
-     
+
             var householdJoinedUser = DbContext.Households.Where(p => p.Id == id && p.JoinedUsers.Any(m => m.Id == userId))
                .Select(p => p.JoinedUsers.FirstOrDefault(m => m.Id == userId)).FirstOrDefault();
             if (householdJoinedUser == null)

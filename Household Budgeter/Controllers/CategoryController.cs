@@ -13,7 +13,7 @@ using System.Web.Http;
 namespace Household_Budgeter.Controllers
 {
     [Authorize]
-    [RoutePrefix("api/Category")]
+    //[RoutePrefix("api/Category")]
     public class CategoryController : ApiController
     {
         private ApplicationDbContext DbContext;
@@ -24,7 +24,7 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpPost]
-        [Route("Create")]
+        //[Route("Create")]
         public IHttpActionResult Create(CategoryBindingModel model)
         {
             if (!ModelState.IsValid)
@@ -53,7 +53,7 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpPost]
-        [Route("{id}")]
+        //[Route("{id}")]
         public IHttpActionResult Edit(int id, CategoryBindingModel model)
         {
             if (!ModelState.IsValid)
@@ -83,7 +83,7 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpDelete]
-        [Route("delete/{id:int}")]
+        //[Route("delete/{id:int}")]
         public IHttpActionResult Delete(int id)
         {
             var userId = User.Identity.GetUserId();
@@ -105,7 +105,7 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpGet]
-        [Route("GetCategory/{id:int}")]
+        //[Route("GetCategory/{id:int}")]
         public IHttpActionResult GetCategory(int id)
         {
             var userId = User.Identity.GetUserId();
