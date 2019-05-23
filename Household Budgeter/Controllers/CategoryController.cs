@@ -35,15 +35,17 @@ namespace Household_Budgeter.Controllers
             var household = DbContext.Households.FirstOrDefault(p => p.Id == model.HouseholdId && p.CreatorId == userId);
             if (household == null)
             {
-                return BadRequest("It is invalid household Creator or household!");
+                return NotFound();
             }
-            var category = new Category
-            {
-                Name = model.Name,
-                Description = model.Description,
-                Created = DateTime.Now,
-                HouseholdId = model.HouseholdId
-            };
+            var category = Mapper.Map<Category>(model);
+                category.Created = DateTime.Now;
+            //var category = new Category
+            //{
+            //    Name = model.Name,
+            //    Description = model.Description,
+            //    Created = DateTime.Now,
+            //    HouseholdId = model.HouseholdId
+            //};
             DbContext.Categories.Add(category);
             DbContext.SaveChanges();
             var categoryModel = Mapper.Map<CategoryView>(category);
@@ -63,7 +65,7 @@ namespace Household_Budgeter.Controllers
             var category = DbContext.Categories.FirstOrDefault(p => p.Id == id);
             if (category == null)
             {
-                return BadRequest("Unable to find a valid category!");
+                return NotFound();
             }
 
             var household = DbContext.Households.FirstOrDefault(p => p.Id == category.HouseholdId && p.CreatorId == userId);
@@ -88,7 +90,7 @@ namespace Household_Budgeter.Controllers
             var category = DbContext.Categories.FirstOrDefault(p => p.Id == id);
             if (category == null)
             {
-                return BadRequest("Unable to find a valid category!");
+                return NotFound();
             }
 
             var household = DbContext.Households.FirstOrDefault(p => p.Id == category.HouseholdId && p.CreatorId == userId);
@@ -111,7 +113,7 @@ namespace Household_Budgeter.Controllers
                            .ProjectTo<CategoryView>().ToList();
             if (category == null)
             {
-                return BadRequest("Unable to find a valid category!");
+                return NotFound();
             }
             return Ok(category);
         }

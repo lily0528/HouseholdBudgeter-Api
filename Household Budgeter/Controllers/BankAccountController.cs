@@ -104,6 +104,15 @@ namespace Household_Budgeter.Controllers
                 .ProjectTo<BankAccountView>().ToList();
             return Ok(bankAccount);
         }
-
+        [HttpPost]
+        [Route("CalculateBalance/{id:int}")]
+        public IHttpActionResult CalculateBalance(int id)
+        {
+            var userId = User.Identity.GetUserId();
+            var bankAccount = DbContext.BankAccounts.FirstOrDefault(p => p.Id == id);
+            bankAccount.Balance = DbContext.Transactions.Where(p => p.BankAccountId == id && p.IfVoid == false).ToList().Sum(m => m.Amount);
+            DbContext.SaveChanges();
+            return Ok();
+        }
     }
 }

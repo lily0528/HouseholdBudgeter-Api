@@ -116,8 +116,9 @@ namespace Household_Budgeter.Controllers
             {
                 return BadRequest("Unable to find a valid household!");
             }
+     
             var householdJoinedUser = DbContext.Households.Where(p => p.Id == id && p.JoinedUsers.Any(m => m.Id == userId))
-                .Select(p => p.JoinedUsers.FirstOrDefault(m => m.Id == userId)).FirstOrDefault();
+               .Select(p => p.JoinedUsers.FirstOrDefault(m => m.Id == userId)).FirstOrDefault();
             if (householdJoinedUser == null)
             {
                 return NotFound();
