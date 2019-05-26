@@ -63,7 +63,7 @@ namespace Household_Budgeter.Controllers
             }
             if (household.CreatorId != userId)
             {
-                ModelState.AddModelError("", "You don't be this household!");
+                ModelState.AddModelError("", "Needs to be greater than 0");
                 return BadRequest();
             }
 
