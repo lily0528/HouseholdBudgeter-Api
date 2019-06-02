@@ -43,7 +43,7 @@ namespace Household_Budgeter.Controllers
             }
 
             var invitationUser = DbContext.Users.FirstOrDefault(p => p.Email == model.Email);
-            var ifInvitation = DbContext.Invitations.FirstOrDefault(p => p.inviteeId == invitationUser.Id && p.HouseholdId == model.HouseholdId);
+            var ifInvitation = DbContext.Invitations.FirstOrDefault(p => p.InviteeId == invitationUser.Id && p.HouseholdId == model.HouseholdId);
             if (invitationUser == null)
             {
                 return BadRequest("This invitee isn't registed user!");
@@ -54,9 +54,9 @@ namespace Household_Budgeter.Controllers
             }
 
             var invitation = Mapper.Map<Invitation>(model);
-            invitation.inviteeId = invitationUser.Id;
+            invitation.InviteeId = invitationUser.Id;
             invitation.Created = DateTime.Now;
-            invitation.OwnerId = userId;
+            //invitation.OwnerId = userId;
             DbContext.Invitations.Add(invitation);
             DbContext.SaveChanges();
             var emailService = new EmailService();
@@ -70,7 +70,7 @@ namespace Household_Budgeter.Controllers
         {
             var userId = User.Identity.GetUserId();
             var user = DbContext.Users.Find(userId);
-            var invitation = DbContext.Invitations.FirstOrDefault(p => p.HouseholdId == id && p.inviteeId == userId);
+            var invitation = DbContext.Invitations.FirstOrDefault(p => p.HouseholdId == id && p.InviteeId == userId);
             if (invitation == null)
             {
                 return BadRequest("You are not invited!");
@@ -88,7 +88,7 @@ namespace Household_Budgeter.Controllers
                 return BadRequest("You already joined household!");
             }
 
-            household.JoinedUsers.Add(invitation.invitee);
+            household.JoinedUsers.Add(invitation.Invitee);
             DbContext.Invitations.Remove(invitation);
             DbContext.SaveChanges();
             return Ok();

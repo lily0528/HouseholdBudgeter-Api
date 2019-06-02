@@ -23,6 +23,15 @@ namespace Household_Budgeter.Controllers
             DbContext = new ApplicationDbContext();
         }
 
+        [HttpGet]
+        public IHttpActionResult GetHouseholds()
+        {
+            var userId = User.Identity.GetUserId();
+            var household = DbContext.Households.Where(p => p.JoinedUsers.Any(m => m.Id == userId) || p.CreatorId == userId).ProjectTo<HouseholdView>().ToList();
+            var result = Mapper.Map<List<HouseholdView>>(household);
+            return Ok(result);
+        }
+
         [HttpPost]
         //[Route("create")]
         public IHttpActionResult Create(HouseholdBindingModel model)
@@ -46,6 +55,22 @@ namespace Household_Budgeter.Controllers
             var result = Mapper.Map<HouseholdView>(household);
             return Ok(result);
         }
+        [HttpGet]
+        public IHttpActionResult Edit(int? id)
+        {
+            if (!id.HasValue)
+            {
+                return BadRequest();
+            }
+            var userId = User.Identity.GetUserId();
+            var household = DbContext.Households.FirstOrDefault(p => p.Id == id && p.CreatorId == userId);
+            if (household == null)
+            {
+                return NotFound();
+            }
+            var model = Mapper.Map<HouseholdView>(household);
+            return Ok(model);
+        }
 
         [HttpPut]
         //[Route("{id}")]
@@ -63,14 +88,14 @@ namespace Household_Budgeter.Controllers
             }
             if (household.CreatorId != userId)
             {
-                ModelState.AddModelError("", "Needs to be greater than 0");
+                ModelState.AddModelError("", "It isn't creator of the household!");
                 return BadRequest();
             }
 
             Mapper.Map(model, household);
             household.Updated = DateTime.Now;
             DbContext.SaveChanges();
-            var householdModel = Mapper.Map<HouseholdView>(household);
+            var householdModel = Mapper.Map<HouseholdBindingModel>(household);
             return Ok(householdModel);
         }
 
@@ -106,7 +131,7 @@ namespace Household_Budgeter.Controllers
             return Ok(householdJoinedUser);
         }
 
-        [HttpDelete]
+        [HttpPost]
         //[Route("MemberLeave/{id:int}")]
         public IHttpActionResult MemberLeave(int id)
         {

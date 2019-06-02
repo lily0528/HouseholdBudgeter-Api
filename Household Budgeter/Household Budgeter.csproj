@@ -241,6 +241,7 @@
     <Compile Include="Models\CategoryView.cs" />
     <Compile Include="Models\Domain\BankAccount.cs" />
     <Compile Include="Models\Domain\Category.cs" />
+    <Compile Include="Models\Domain\EditBankAccountBindingModel.cs" />
     <Compile Include="Models\Domain\Household.cs" />
     <Compile Include="Models\Domain\Invitation.cs" />
     <Compile Include="Models\Domain\Transaction.cs" />

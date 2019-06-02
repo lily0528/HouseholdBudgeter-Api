@@ -35,7 +35,8 @@ namespace Household_Budgeter.Controllers
             var household = DbContext.Households.FirstOrDefault(p => p.Id == formdata.HouseholdId && p.CreatorId == userId);
             if (household == null)
             {
-                return BadRequest("It is invalid household Creator or household!");
+                ModelState.AddModelError("", "It is invalid household Creator or household!");
+                return BadRequest(ModelState);
             }
             var bankAccount = Mapper.Map<BankAccount>(formdata);
             bankAccount.Balance = 0;
@@ -48,7 +49,7 @@ namespace Household_Budgeter.Controllers
 
         [HttpPut]
         //[Route("Edit/{id:int}")]
-        public IHttpActionResult Edit(int id, BankAccountBindingModel formdata)
+        public IHttpActionResult Edit(int id, EditBankAccountBindingModel formdata)
         {
             if (!ModelState.IsValid)
             {
@@ -59,7 +60,8 @@ namespace Household_Budgeter.Controllers
             var bankAccountItem = DbContext.BankAccounts.FirstOrDefault(p => p.Id ==id && p.Household.CreatorId == userId);
             if (bankAccountItem == null)
             {
-                return NotFound();
+                ModelState.AddModelError("", "It is invalid household Creator or household!");
+                return BadRequest(ModelState);
             }
             Mapper.Map(formdata, bankAccountItem);
             bankAccountItem.Updated = DateTime.Now;
@@ -104,7 +106,7 @@ namespace Household_Budgeter.Controllers
             {
                 return NotFound();
             }
-            bankAccount.Balance = DbContext.Transactions.Where(p => p.BankAccountId == id && p.IfVoid == false && p.BankAccount.Household.CreatorId == userId).ToList().Sum(m => m.Amount);
+            bankAccount.Balance = DbContext.Transactions.Where(p => p.BankAccountId == id && p.IfVoid == false && p.BankAccount.Household.CreatorId == userId).ToList().Sum(m => (decimal?)m.Amount?? 0);
             DbContext.SaveChanges();
             return Ok();
         }

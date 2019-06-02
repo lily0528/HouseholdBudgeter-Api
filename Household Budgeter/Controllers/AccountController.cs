@@ -422,8 +422,9 @@ namespace Household_Budgeter.Controllers
         }
 
         // POST api/Account/ResetPassword
-        [OverrideAuthentication]
+        //[OverrideAuthentication]
         //[HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
+        [AllowAnonymous]
         [Route("ResetPassword")]
         public async Task<IHttpActionResult> ResetPassword(ResetPasswordViewModel model)
         {

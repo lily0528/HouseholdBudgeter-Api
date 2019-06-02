@@ -41,7 +41,7 @@ namespace Household_Budgeter.Controllers
             transaction.Created = DateTime.Now;
             transaction.CreatorId = userId;
             transaction.IfVoid = false;
-            bankAccount.Balance = bankAccount.Balance + formData.Amount;
+            bankAccount.Balance += formData.Amount;
             bankAccount.Updated = DateTime.Now;
             DbContext.Transactions.Add(transaction);
             DbContext.SaveChanges();
@@ -83,8 +83,8 @@ namespace Household_Budgeter.Controllers
                 {
                     return NotFound();
                 }
-                bankAccount.Balance = bankAccount.Balance - transaction.Amount;
-                bankAccountFormData.Balance = bankAccountFormData.Balance + formData.Amount;
+                bankAccount.Balance -= transaction.Amount;
+                bankAccountFormData.Balance += formData.Amount;
                 bankAccount.Updated = DateTime.Now;
             }
             Mapper.Map(formData, transaction);
@@ -112,7 +112,7 @@ namespace Household_Budgeter.Controllers
             }
             if (transaction.IfVoid == false)
             {
-                bankAccount.Balance = bankAccount.Balance - transaction.Amount;
+                bankAccount.Balance -= transaction.Amount;
             }
             DbContext.Transactions.Remove(transaction);
             DbContext.SaveChanges();
