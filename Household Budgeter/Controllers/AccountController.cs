@@ -444,7 +444,7 @@ namespace Household_Budgeter.Controllers
                 return Ok();
             }
             
-            return BadRequest();
+            return BadRequest("Your information is wrong!");
         }
         protected override void Dispose(bool disposing)
         {
