@@ -93,6 +93,26 @@ namespace Household_Budgeter.Controllers
             DbContext.SaveChanges();
             return Ok();
         }
+
+        [HttpGet]
+        public IHttpActionResult GetInvites()
+        {
+            var userId = User.Identity.GetUserId();
+
+            var user = DbContext.Users.FirstOrDefault(p => p.Id == userId);
+
+            var result = user
+                .Invitations
+                .Select(p => new InviteViewModel
+                {
+                    HouseholdId = p.HouseholdId,
+                    Name = p.Invitee.Email,
+                    OwnerName = p.Household.Creator.Email
+                })
+                .ToList();
+
+            return Ok(result);
+        }
     }
 }
 

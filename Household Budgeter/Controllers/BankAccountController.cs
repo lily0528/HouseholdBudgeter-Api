@@ -110,5 +110,26 @@ namespace Household_Budgeter.Controllers
             DbContext.SaveChanges();
             return Ok();
         }
+
+
+        [HttpGet]
+        public IHttpActionResult ViewBankAccount()
+        {
+            var userId = User.Identity.GetUserId();
+            var result = DbContext.BankAccounts.Where(p => p.Household.CreatorId == userId || p.Household.JoinedUsers.Any(t => t.Id == userId))
+                .Select(p => new ViewBankAccountView
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    IsOwner = p.Household.CreatorId == userId,
+                    Balance = p.Balance,
+                    Created = p.Created,
+                    Updated = p.Updated,
+                    Description = p.Description,
+                    HouseholdId = p.HouseholdId
+                }).ToList();
+
+            return Ok(result);
+        }
     }
 }

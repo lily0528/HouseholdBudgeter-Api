@@ -24,12 +24,46 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpGet]
+        public IHttpActionResult GetHouseholdsSelectList()
+        {
+            var userId = User.Identity.GetUserId();
+            var result = DbContext.Households.Where(p => p.CreatorId == userId )
+              .Select(p => new ViewHouseholdViewModel
+              {
+                  Id = p.Id,
+                  Name = p.Name,
+                  NumberOfUsers = p.JoinedUsers.Count() + 1,
+                  IsOwner = p.CreatorId == userId,
+                  Description = p.Description,
+                  Created = p.Created,
+                  Updated = p.Updated
+              }).ToList();
+
+            return Ok(result);
+        }
+
+        [HttpGet]
         public IHttpActionResult GetHouseholds()
         {
             var userId = User.Identity.GetUserId();
-            var household = DbContext.Households.Where(p => p.JoinedUsers.Any(m => m.Id == userId) || p.CreatorId == userId).ProjectTo<HouseholdView>().ToList();
-            var result = Mapper.Map<List<HouseholdView>>(household);
+            var result = DbContext.Households.Where(p => p.CreatorId == userId || p.JoinedUsers.Any(t => t.Id == userId))
+              .Select(p => new ViewHouseholdViewModel
+              {
+                  Id = p.Id,
+                  Name = p.Name,
+                  NumberOfUsers = p.JoinedUsers.Count() + 1,
+                  IsOwner = p.CreatorId == userId,
+                  Description = p.Description,
+                  Created = p.Created,
+                  Updated = p.Updated
+                }).ToList();
+
             return Ok(result);
+
+            //var userId = User.Identity.GetUserId();
+            //var household = DbContext.Households.Where(p => p.JoinedUsers.Any(m => m.Id == userId) || p.CreatorId == userId).ProjectTo<HouseholdView>().ToList();
+            //var result = Mapper.Map<List<HouseholdView>>(household);
+            //return Ok(result);
         }
 
         [HttpPost]
@@ -156,5 +190,7 @@ namespace Household_Budgeter.Controllers
             DbContext.SaveChanges();
             return Ok();
         }
+
+
     }
 }
