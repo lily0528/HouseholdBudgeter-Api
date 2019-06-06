@@ -24,7 +24,6 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpPost]
-        //[Route("create")]
         public IHttpActionResult Create(TransactionBindingModel formData)
         {
             if (!ModelState.IsValid)
@@ -37,8 +36,16 @@ namespace Household_Budgeter.Controllers
             {
                 return BadRequest("It is invalid bank account!");
             }
+            var category = DbContext.Categories.FirstOrDefault(p => p.Id == formData.CategoryId && p.HouseholdId == bankAccount.HouseholdId);
+            if (category == null)
+            {
+
+                ModelState.AddModelError("", "Category doesn't exist in this household");
+                return BadRequest(ModelState);
+            }
             var transaction = Mapper.Map<Transaction>(formData);
             transaction.Created = DateTime.Now;
+            transaction.Date = formData.Date;
             transaction.CreatorId = userId;
             transaction.IfVoid = false;
             bankAccount.Balance += formData.Amount;
@@ -49,8 +56,29 @@ namespace Household_Budgeter.Controllers
             return Ok(model);
         }
 
+        [HttpGet]
+        public IHttpActionResult Edit(int id)
+        {
+            var userId = User.Identity.GetUserId();
+            var transaction = DbContext.Transactions.FirstOrDefault(p => p.Id == id && p.IfVoid == false && (p.CreatorId == userId || p.BankAccount.Household.CreatorId == userId));
+            var model =  new EditTransactionBindingModel
+                {
+                    Title = transaction.Title,
+                    Description = transaction.Description,
+                    Amount = transaction.Amount,
+                    Date = transaction.Date,
+                    BankAccountId = transaction.BankAccountId,
+                    IsOwner = transaction.BankAccount.Household.CreatorId == userId || transaction.BankAccount.Household.JoinedUsers.Any(m => m.Id == userId),
+                    CategoryId = transaction.CategoryId
+            };
+            if (transaction == null)
+            {
+                return NotFound();
+            }
+            return Ok(model);
+        }
+
         [HttpPut]
-        //[Route("Edit/{id:int}")]
         public IHttpActionResult Edit(int id, TransactionBindingModel formData)
         {
             if (!ModelState.IsValid)
@@ -58,6 +86,7 @@ namespace Household_Budgeter.Controllers
                 return BadRequest(ModelState);
             }
             var userId = User.Identity.GetUserId();
+
             var transaction = DbContext.Transactions.FirstOrDefault(p => p.Id == id && p.IfVoid == false && (p.CreatorId == userId || p.BankAccount.Household.CreatorId == userId));
             if (transaction == null)
             {
@@ -70,11 +99,18 @@ namespace Household_Budgeter.Controllers
                 return NotFound();
             }
 
+            var category = DbContext.Categories.FirstOrDefault(p => p.Id == formData.CategoryId && p.HouseholdId == bankAccount.HouseholdId);
+            if (category == null)
+            {
+
+                ModelState.AddModelError("", "Category doesn't exist in this household");
+                return BadRequest(ModelState);
+            }
+
             if (transaction.BankAccountId == formData.BankAccountId && transaction.Amount != formData.Amount)
             {
                 bankAccount.Balance = bankAccount.Balance - transaction.Amount + formData.Amount;
                 bankAccount.Updated = DateTime.Now;
-
             }
             else if (transaction.BankAccountId != formData.BankAccountId)
             {
@@ -95,11 +131,9 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpDelete]
-        //[Route("Delete/{id:int}")]
         public IHttpActionResult Delete(int id)
         {
             var userId = User.Identity.GetUserId();
-
             var transaction = DbContext.Transactions.FirstOrDefault(p => p.Id == id && (p.CreatorId == userId || p.BankAccount.Household.CreatorId == userId));
             if (transaction == null)
             {
@@ -120,7 +154,6 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpPut]
-        //[Route("VoidTransaction/{id:int}")]
         public IHttpActionResult VoidTransaction(int id)
         {
             var userId = User.Identity.GetUserId();
@@ -142,7 +175,30 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpGet]
-        //[Route("GetTransactions/{id:int}")]
+        public IHttpActionResult ViewTransactions()
+        {
+            //var userId = User.Identity.GetUserId();
+            //var transactions = DbContext.Transactions.Where(p => p.BankAccount.Household.JoinedUsers.Any(m => m.Id == userId)).Include(k => k.Category).Include(j =>j.BankAccount).ToList();
+            //var model = Mapper.Map<List<ViewTransactionView>>(transactions);
+            var userId = User.Identity.GetUserId();
+            var result = DbContext.Transactions.Where(p =>  p.IfVoid == false && p.BankAccount.Household.JoinedUsers.Any(m => m.Id == userId)).Include(k => k.Category).Include(j => j.BankAccount)
+                .Select(p => new ViewTransactionView
+                {
+                    Id = p.Id,
+                    Title = p.Title,
+                    IsOwner = p.BankAccount.Household.CreatorId == userId  || p.BankAccount.Household.JoinedUsers.Any(m => m.Id == userId),
+                    Description = p.Description,
+                    Amount = p.Amount,
+                    Date = p.Date,
+                    BankAccountName = p.BankAccount.Name,
+                    CategoryName = p.Category.Name
+                }).ToList();
+
+            return Ok(result);
+            
+        }
+
+        [HttpGet]
         public IHttpActionResult GetTransactions(int id)
         {
             var userId = User.Identity.GetUserId();

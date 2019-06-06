@@ -138,6 +138,20 @@ namespace Household_Budgeter.Controllers
             DbContext.SaveChanges();
             return Ok();
         }
+
+        [HttpGet]
+        public IHttpActionResult GetCategoriesSelectList()
+        {
+            var userId = User.Identity.GetUserId();
+            var result = DbContext.Categories.Where(p => p.Household.CreatorId == userId || p.Household.JoinedUsers.Any(t => t.Id == userId))
+              .Select(p => new ViewCategoryView
+              {
+                  Id = p.Id,
+                  Name = p.Name
+              }).ToList();
+            return Ok(result);
+        }
+
         [HttpGet]
         public IHttpActionResult ViewCategory()
         {

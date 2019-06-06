@@ -25,6 +25,9 @@ namespace Household_Budgeter.App_Start
                 cfg.CreateMap<BankAccount, EditBankAccountBindingModel>().ReverseMap();
                 cfg.CreateMap<BankAccount, BankAccountView>().ReverseMap();
                 cfg.CreateMap<Transaction, TransactionBindingModel>().ReverseMap();
+                cfg.CreateMap<Transaction, ViewTransactionView>()
+                   .ForMember(dst => dst.BankAccountName, opt => opt.MapFrom(src => src.BankAccount.Name))
+                   .ForMember(dst => dst.CategoryName, opt => opt.MapFrom(src => src.Category.Name)).ReverseMap();
                 cfg.CreateMap<Transaction, TransactionView>()
                 .ForMember(dst => dst.CreatorName, opt => opt.MapFrom(src => src.Creator.UserName)).ReverseMap();
             });
