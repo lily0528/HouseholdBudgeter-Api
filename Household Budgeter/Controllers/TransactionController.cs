@@ -207,5 +207,28 @@ namespace Household_Budgeter.Controllers
                 .ToList();
             return Ok(transaction);
         }
+
+        [HttpGet]
+        public IHttpActionResult GetTransactions(int householdId, int? bankAccountId = null, int? categoryId = null)
+        {
+            var userId = User.Identity.GetUserId();
+            var household = DbContext.Households.FirstOrDefault(p => p.Id == householdId && p.JoinedUsers.Any(u => u.Id == userId));
+            if (household == null)
+            {
+                return NotFound();
+            }
+            var query = household.BankAccounts.SelectMany(a => a.Transactions).AsQueryable();
+            if (bankAccountId != null)
+            {
+                query = query.Where(p => p.BankAccountId == bankAccountId);
+            }
+            if (categoryId != null)
+            {
+                query = query.Where(p => p.CategoryId == categoryId);
+            }
+            var transaction = query.ProjectTo<TransactionView>().ToList();
+            return Ok(transaction);
+        }
+
     }
 }

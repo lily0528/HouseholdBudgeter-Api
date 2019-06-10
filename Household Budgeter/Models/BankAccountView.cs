@@ -15,4 +15,11 @@ namespace Household_Budgeter.Models
         public DateTime Updated { get; set; }
         public decimal Balance { get; set; }
     }
+
+    public class BankAccountSummaryView
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public decimal Balance { get; set; }
+    }
 }

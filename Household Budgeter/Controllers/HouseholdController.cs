@@ -5,6 +5,7 @@ using Household_Budgeter.Models.Domain;
 using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -27,7 +28,7 @@ namespace Household_Budgeter.Controllers
         public IHttpActionResult GetHouseholdsSelectList()
         {
             var userId = User.Identity.GetUserId();
-            var result = DbContext.Households.Where(p => p.CreatorId == userId )
+            var result = DbContext.Households.Where(p => p.CreatorId == userId)
               .Select(p => new ViewHouseholdViewModel
               {
                   Id = p.Id,
@@ -56,7 +57,7 @@ namespace Household_Budgeter.Controllers
                   Description = p.Description,
                   Created = p.Created,
                   Updated = p.Updated
-                }).ToList();
+              }).ToList();
 
             return Ok(result);
 
@@ -191,6 +192,87 @@ namespace Household_Budgeter.Controllers
             return Ok();
         }
 
+        [HttpGet]
+        public IHttpActionResult BankAccountDetails(int id)
+        {
+            var userId = User.Identity.GetUserId();
+            var household = DbContext.Households.FirstOrDefault(m => m.Id == id && m.JoinedUsers.Any(p => p.Id == userId));
+            if (household == null)
+            {
+                return BadRequest("Unable to find a valid household!");
+            }
 
+            var bankAccounts = DbContext.BankAccounts.Where(m => m.HouseholdId == id && m.Household.JoinedUsers.Any(p => p.Id == userId))
+                .Select(m => new HouseholdBankAccountDetailView
+                {
+                    Id = m.Id,
+                    Name = m.Name,
+                    Balance = m.Balance,
+                    Categorys = m.Transactions.Where(k => k.IfVoid == false).GroupBy(p => p.Category.Name).Select(group => new CategoryGroupView
+                    {
+                        CategoryName = group.Key,
+                        CategoryAmount = group.Sum(g => g.Amount),
+                        Transactions = group.Select(o => new HouseholdBankAccountTransactionDetailView
+                        {
+                            Id = o.Id,
+                            Title = o.Title,
+                            Amount = o.Amount,
+                            CategoryName = o.Category.Name
+                        }).ToList()
+                    }).ToList()
+                }).ToList();
+            return Ok(bankAccounts);
+        }
+
+        [HttpGet]
+        public IHttpActionResult TransactionDetails(int id)
+        {
+            var userId = User.Identity.GetUserId();
+            var bankAccount = DbContext.BankAccounts.FirstOrDefault(m => m.Id == id && m.Household.JoinedUsers.Any(p => p.Id == userId));
+            if (bankAccount == null)
+            {
+                return BadRequest("Unable to find a valid bankAccount!");
+            }
+            var transactions = DbContext.Transactions.Where(m => m.BankAccountId == id && m.BankAccount.Household.JoinedUsers.Any(p => p.Id == userId)).Include(k => k.Category)
+                .Select(m => new HouseholdBankAccountTransactionDetailView
+                {
+                    Id = m.Id,
+                    Title = m.Title,
+                    Amount = m.Amount,
+                    CategoryName = m.Category.Name,
+                }).ToList();
+            return Ok(transactions);
+        }
+
+        [HttpGet]
+        public IHttpActionResult Summary(int id)
+        {
+            var userId = User.Identity.GetUserId();
+            var household = DbContext.Households
+                .Where(p => p.Id == id && p.JoinedUsers.Any(u => u.Id == userId)).Select(p => new HouseholdSummaryViewModel
+                {
+                    BankAccounts = p.BankAccounts.Select(b => new BankAccountSummaryView
+                    {
+                        Id = b.Id,
+                        Name = b.Name,
+                        Balance = b.Balance
+                    }),
+                    Categories = p.Categories.Select(c => new CategorySummaryView
+                    {
+                        Id = c.Id,
+                        Name = c.Name,
+                        Sum = c.Transactions.Where(t => !t.IfVoid).Sum(t => t.Amount)
+                    })
+                })
+                .FirstOrDefault();
+            if (household == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(household);
+            }
+        }
     }
 }

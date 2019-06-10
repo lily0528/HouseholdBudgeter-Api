@@ -14,4 +14,9 @@ namespace Household_Budgeter.Models
         public int HouseholdId { get; set; }
         //public virtual Household Household { get; set; }
     }
+
+    public class CategorySummaryView: CategoryView
+    {
+        public decimal Sum { get; set; }
+    }
 }

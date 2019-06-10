@@ -103,10 +103,10 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpGet]
-        public IHttpActionResult GetBankAccountsSelectList()
+        public IHttpActionResult GetBankAccountsSelectList(int id)
         {
             var userId = User.Identity.GetUserId();
-            var result = DbContext.BankAccounts.Where(p => p.Household.JoinedUsers.Any(j => j.Id == userId) || p.Household.CreatorId == userId)
+            var result = DbContext.BankAccounts.Where(p => p.Household.Id == id && (p.Household.JoinedUsers.Any(j => j.Id == userId) || p.Household.CreatorId == userId))
               .Select(p => new ViewBankAccountView
               {
                   Id = p.Id,
@@ -131,7 +131,7 @@ namespace Household_Budgeter.Controllers
                 .ProjectTo<BankAccountView>().ToList();
             return Ok(bankAccount);
         }
-        [HttpPost]
+       [HttpPost]
         //[Route("CalculateBalance/{id:int}")]
         public IHttpActionResult CalculateBalance(int id)
         {

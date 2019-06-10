@@ -140,10 +140,10 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpGet]
-        public IHttpActionResult GetCategoriesSelectList()
+        public IHttpActionResult GetCategoriesSelectList(int id)
         {
             var userId = User.Identity.GetUserId();
-            var result = DbContext.Categories.Where(p => p.Household.CreatorId == userId || p.Household.JoinedUsers.Any(t => t.Id == userId))
+            var result = DbContext.Categories.Where(p => p.HouseholdId == id &&  (p.Household.CreatorId == userId || p.Household.JoinedUsers.Any(t => t.Id == userId)))
               .Select(p => new ViewCategoryView
               {
                   Id = p.Id,

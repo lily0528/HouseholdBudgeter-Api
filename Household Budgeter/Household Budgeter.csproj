@@ -238,6 +238,7 @@
     <Compile Include="Models\BankAccountBindingModel.cs" />
     <Compile Include="Models\BankAccountView.cs" />
     <Compile Include="Models\CategoryBindingModel.cs" />
+    <Compile Include="Models\CategoryGroupView.cs" />
     <Compile Include="Models\CategoryView.cs" />
     <Compile Include="Models\Domain\BankAccount.cs" />
     <Compile Include="Models\Domain\Category.cs" />
@@ -246,6 +247,9 @@
     <Compile Include="Models\Domain\Invitation.cs" />
     <Compile Include="Models\Domain\Transaction.cs" />
     <Compile Include="Models\EditTransactionBindingModel.cs" />
+    <Compile Include="Models\HouseholdBankAccountDetailView.cs" />
+    <Compile Include="Models\HouseholdBankAccountTransactionDetailView.cs" />
+    <Compile Include="Models\HouseholdSummaryViewModel.cs" />
     <Compile Include="Models\HouseholdView.cs" />
     <Compile Include="Models\EmailService.cs" />
     <Compile Include="Models\HouseholdBindingModel.cs" />
