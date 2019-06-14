@@ -61,10 +61,6 @@ namespace Household_Budgeter.Controllers
 
             return Ok(result);
 
-            //var userId = User.Identity.GetUserId();
-            //var household = DbContext.Households.Where(p => p.JoinedUsers.Any(m => m.Id == userId) || p.CreatorId == userId).ProjectTo<HouseholdView>().ToList();
-            //var result = Mapper.Map<List<HouseholdView>>(household);
-            //return Ok(result);
         }
 
         [HttpPost]
@@ -90,6 +86,7 @@ namespace Household_Budgeter.Controllers
             var result = Mapper.Map<HouseholdView>(household);
             return Ok(result);
         }
+
         [HttpGet]
         public IHttpActionResult Edit(int? id)
         {
@@ -193,7 +190,7 @@ namespace Household_Budgeter.Controllers
         }
 
         [HttpGet]
-        public IHttpActionResult BankAccountDetails(int id)
+        public IHttpActionResult BankAccountSummary(int id)
         {
             var userId = User.Identity.GetUserId();
             var household = DbContext.Households.FirstOrDefault(m => m.Id == id && m.JoinedUsers.Any(p => p.Id == userId));
@@ -212,13 +209,14 @@ namespace Household_Budgeter.Controllers
                     {
                         CategoryName = group.Key,
                         CategoryAmount = group.Sum(g => g.Amount),
-                        Transactions = group.Select(o => new HouseholdBankAccountTransactionDetailView
-                        {
-                            Id = o.Id,
-                            Title = o.Title,
-                            Amount = o.Amount,
-                            CategoryName = o.Category.Name
-                        }).ToList()
+
+                        //Transactions = group.Select(o => new HouseholdBankAccountTransactionDetailView
+                        //{
+                        //    Id = o.Id,
+                        //    Title = o.Title,
+                        //    Amount = o.Amount,
+                        //    CategoryName = o.Category.Name
+                        //}).ToList()
                     }).ToList()
                 }).ToList();
             return Ok(bankAccounts);
@@ -244,35 +242,35 @@ namespace Household_Budgeter.Controllers
             return Ok(transactions);
         }
 
-        [HttpGet]
-        public IHttpActionResult Summary(int id)
-        {
-            var userId = User.Identity.GetUserId();
-            var household = DbContext.Households
-                .Where(p => p.Id == id && p.JoinedUsers.Any(u => u.Id == userId)).Select(p => new HouseholdSummaryViewModel
-                {
-                    BankAccounts = p.BankAccounts.Select(b => new BankAccountSummaryView
-                    {
-                        Id = b.Id,
-                        Name = b.Name,
-                        Balance = b.Balance
-                    }),
-                    Categories = p.Categories.Select(c => new CategorySummaryView
-                    {
-                        Id = c.Id,
-                        Name = c.Name,
-                        Sum = c.Transactions.Where(t => !t.IfVoid).Sum(t => t.Amount)
-                    })
-                })
-                .FirstOrDefault();
-            if (household == null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return Ok(household);
-            }
-        }
+        //[HttpGet]
+        //public IHttpActionResult Summary(int id)
+        //{
+        //    var userId = User.Identity.GetUserId();
+        //    var household = DbContext.Households
+        //        .Where(p => p.Id == id && p.JoinedUsers.Any(u => u.Id == userId)).Select(p => new HouseholdSummaryViewModel
+        //        {
+        //            BankAccounts = p.BankAccounts.Select(b => new BankAccountSummaryView
+        //            {
+        //                Id = b.Id,
+        //                Name = b.Name,
+        //                Balance = b.Balance
+        //            }),
+        //            Categories = p.Categories.Select(c => new CategorySummaryView
+        //            {
+        //                Id = c.Id,
+        //                Name = c.Name,
+        //                Sum = c.Transactions.Where(t => !t.IfVoid).Sum(t => t.Amount)
+        //            })
+        //        })
+        //        .FirstOrDefault();
+        //    if (household == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    else
+        //    {
+        //        return Ok(household);
+        //    }
+        //}
     }
 }

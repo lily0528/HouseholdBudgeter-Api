@@ -111,11 +111,27 @@ namespace Household_Budgeter.Controllers
               {
                   Id = p.Id,
                   Name = p.Name,
-                  //IsOwner = (p.Household.CreatorId == userId || p.Household.JoinedUsers.Any(j => j.Id == userId)),
-                  ////ToDo: Test JoinedUsers
-                  //Description = p.Description,
-                  //Created = p.Created,
-                  //Updated = p.Updated
+
+              }).ToList();
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        public IHttpActionResult GetBankAccountsSelectListByTransaction(int id)
+        {
+            var userId = User.Identity.GetUserId();
+            var household = DbContext.Households.Where(p => p.BankAccounts.Any(j => j.Transactions.Any(m => m.Id == id))).FirstOrDefault();
+            if (household == null)
+            {
+                return NotFound();
+            }
+            var result = DbContext.BankAccounts.Where(p => p.Household.Id == household.Id && (p.Household.JoinedUsers.Any(j => j.Id == userId) || p.Household.CreatorId == userId))
+              .Select(p => new ViewBankAccountView
+              {
+                  Id = p.Id,
+                  Name = p.Name,
+
               }).ToList();
 
             return Ok(result);

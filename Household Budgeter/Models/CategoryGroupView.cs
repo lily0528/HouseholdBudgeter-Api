@@ -7,7 +7,7 @@ namespace Household_Budgeter.Models
 {
     public class CategoryGroupView
     {
-        public int CategoryId { get; set; }
+        //public int CategoryId { get; set; }
         public string CategoryName { get; set; }
         public decimal CategoryAmount { get; set; }
         public List<HouseholdBankAccountTransactionDetailView> Transactions { get; set; }
