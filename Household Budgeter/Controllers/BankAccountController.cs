@@ -177,7 +177,8 @@ namespace Household_Budgeter.Controllers
                     Created = p.Created,
                     Updated = p.Updated,
                     Description = p.Description,
-                    HouseholdId = p.HouseholdId
+                    HouseholdId = p.HouseholdId,
+                    HouseholdName = p.Household.Name
                 }).ToList();
 
             return Ok(result);

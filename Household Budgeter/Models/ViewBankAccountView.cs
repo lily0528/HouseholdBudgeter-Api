@@ -14,6 +14,7 @@ namespace Household_Budgeter.Models
         public DateTime Created { get; set; }
         public DateTime? Updated { get; set; }
         public int HouseholdId { get; set; }
+        public string HouseholdName { get; set; }
         public bool IsOwner { get; set; }
     }
 }

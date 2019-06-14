@@ -242,35 +242,6 @@ namespace Household_Budgeter.Controllers
             return Ok(transactions);
         }
 
-        //[HttpGet]
-        //public IHttpActionResult Summary(int id)
-        //{
-        //    var userId = User.Identity.GetUserId();
-        //    var household = DbContext.Households
-        //        .Where(p => p.Id == id && p.JoinedUsers.Any(u => u.Id == userId)).Select(p => new HouseholdSummaryViewModel
-        //        {
-        //            BankAccounts = p.BankAccounts.Select(b => new BankAccountSummaryView
-        //            {
-        //                Id = b.Id,
-        //                Name = b.Name,
-        //                Balance = b.Balance
-        //            }),
-        //            Categories = p.Categories.Select(c => new CategorySummaryView
-        //            {
-        //                Id = c.Id,
-        //                Name = c.Name,
-        //                Sum = c.Transactions.Where(t => !t.IfVoid).Sum(t => t.Amount)
-        //            })
-        //        })
-        //        .FirstOrDefault();
-        //    if (household == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    else
-        //    {
-        //        return Ok(household);
-        //    }
-        //}
+       
     }
 }

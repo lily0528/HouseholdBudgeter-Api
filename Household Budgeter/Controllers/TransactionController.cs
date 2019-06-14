@@ -177,9 +177,6 @@ namespace Household_Budgeter.Controllers
         [HttpGet]
         public IHttpActionResult ViewTransactions()
         {
-            //var userId = User.Identity.GetUserId();
-            //var transactions = DbContext.Transactions.Where(p => p.BankAccount.Household.JoinedUsers.Any(m => m.Id == userId)).Include(k => k.Category).Include(j =>j.BankAccount).ToList();
-            //var model = Mapper.Map<List<ViewTransactionView>>(transactions);
             var userId = User.Identity.GetUserId();
             var result = DbContext.Transactions.Where(p =>  p.IfVoid == false && p.BankAccount.Household.JoinedUsers.Any(m => m.Id == userId)).Include(k => k.Category).Include(j => j.BankAccount)
                 .Select(p => new ViewTransactionView
@@ -208,27 +205,27 @@ namespace Household_Budgeter.Controllers
             return Ok(transaction);
         }
 
-        [HttpGet]
-        public IHttpActionResult GetTransactions(int householdId, int? bankAccountId = null, int? categoryId = null)
-        {
-            var userId = User.Identity.GetUserId();
-            var household = DbContext.Households.FirstOrDefault(p => p.Id == householdId && p.JoinedUsers.Any(u => u.Id == userId));
-            if (household == null)
-            {
-                return NotFound();
-            }
-            var query = household.BankAccounts.SelectMany(a => a.Transactions).AsQueryable();
-            if (bankAccountId != null)
-            {
-                query = query.Where(p => p.BankAccountId == bankAccountId);
-            }
-            if (categoryId != null)
-            {
-                query = query.Where(p => p.CategoryId == categoryId);
-            }
-            var transaction = query.ProjectTo<TransactionView>().ToList();
-            return Ok(transaction);
-        }
+        //[HttpGet]
+        //public IHttpActionResult GetTransactions(int householdId, int? bankAccountId = null, int? categoryId = null)
+        //{
+        //    var userId = User.Identity.GetUserId();
+        //    var household = DbContext.Households.FirstOrDefault(p => p.Id == householdId && p.JoinedUsers.Any(u => u.Id == userId));
+        //    if (household == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    var query = household.BankAccounts.SelectMany(a => a.Transactions).AsQueryable();
+        //    if (bankAccountId != null)
+        //    {
+        //        query = query.Where(p => p.BankAccountId == bankAccountId);
+        //    }
+        //    if (categoryId != null)
+        //    {
+        //        query = query.Where(p => p.CategoryId == categoryId);
+        //    }
+        //    var transaction = query.ProjectTo<TransactionView>().ToList();
+        //    return Ok(transaction);
+        //}
 
     }
 }
